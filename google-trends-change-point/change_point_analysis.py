@@ -6,12 +6,6 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
 DATA_PATH = Path(__file__).resolve().parent / "data" / "multiTimeline.csv"
-if not DATA_PATH.is_file():
-    raise FileNotFoundError(
-        f"Missing input: {DATA_PATH}\n"
-        "Copy your Google Trends CSV here, keeping its first two metadata rows."
-    )
-
 df = pd.read_csv(DATA_PATH, skiprows=2)
 y = df['mask: (United States)'].values
 n=len(y)
