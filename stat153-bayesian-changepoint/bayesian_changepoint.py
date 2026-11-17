@@ -1,8 +1,4 @@
 """STAT 153 HW2, Problem 3: direct posterior sampling for a change point.
-
-Based on Zhekai Liu's coursework script and the course Lab 5 example:
-https://stat153.berkeley.edu/spring-2025/lab5
-See README.md for the model, priors, provenance, and limitations.
 """
 
 import argparse
