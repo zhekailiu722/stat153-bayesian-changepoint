@@ -39,7 +39,7 @@ $$\boldsymbol\beta\mid\sigma^2,c,y\sim N\left(\widehat{\boldsymbol\beta}_c,\sigm
 
 Here the inverse-gamma density is proportional to $v^{-a-1}\exp(-b/v)$. The variance draw is implemented using $\sigma^2=RSS(c)/U$, where $U\sim\chi^2_{n-p}$.
 
-This is **direct posterior sampling, not Gibbs sampling or MCMC**. Each complete parameter draw is generated independently. The plotted curves are draws of the mean function, not posterior predictive draws of new noisy observations.
+This is direct posterior sampling. Each complete parameter draw is generated independently. The plotted curves are draws of the mean function, not posterior predictive draws of new noisy observations.
 
 ## Run
 
