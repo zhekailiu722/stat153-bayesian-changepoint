@@ -41,25 +41,6 @@ Here the inverse-gamma density is proportional to $v^{-a-1}\exp(-b/v)$. The vari
 
 This is direct posterior sampling. Each complete parameter draw is generated independently. The plotted curves are draws of the mean function, not posterior predictive draws of new noisy observations.
 
-## Run
-
-Tested with Python 3.9.7 and the versions listed in `requirements.txt`.
-
-```bash
-python -m pip install -r requirements.txt
-python bayesian_changepoint.py
-```
-
-The defaults use the included dataset, 1,000 draws, and random seed 42. Paths are resolved relative to the script, so the default run does not depend on the terminal's working directory.
-
-Optional arguments:
-
-```bash
-python bayesian_changepoint.py --draws 2000 --seed 42 --output-dir results_alt
-```
-
-The script writes two figures, a parameter sample table, the discrete change-point posterior, and a JSON summary. Running it again replaces the files in the chosen output directory.
-
 ## Results
 
 ![Google Trends change-point fit using the included original data](figures/change_point_fit.png)
