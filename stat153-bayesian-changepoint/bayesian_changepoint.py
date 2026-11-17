@@ -24,7 +24,7 @@ def design_matrix(n, c):
 
 
 def fit_posterior(y, draws=1000, seed=42):
-    """Enumerate c, then sample c -> sigma^2 -> beta (not Gibbs/MCMC)."""
+    """Enumerate c, then sample c -> sigma^2 -> beta ."""
     n = len(y)
     p = 2
     candidates = np.arange(1, n)
