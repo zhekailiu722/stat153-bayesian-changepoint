@@ -62,17 +62,18 @@ The script writes two figures, a parameter sample table, the discrete change-poi
 
 ## Results
 
-The minimum-RSS estimate and posterior mode are both $c=193$: January 2020 is the last pre-change month, and the new level begins in February 2020.
+![Google Trends change-point fit using the included original data](figures/change_point_fit.png)
 
-The exact discrete 95% equal-tailed posterior interval for $c$ is **[187, 194]**, corresponding to July 2019 through February 2020 as possible last pre-change months. This is an interval conditional on the assumed model and priors, not evidence for a causal event.
+The figure above uses the original CSV included in this repository: **254 monthly observations from January 2004 through February 2025**, for `mask` in the United States, with category `All categories`.
 
-![Observed data and posterior mean-function draws](results/posterior_fit.png)
+| Output | Result |
+| --- | --- |
+| Minimum-RSS change point, `c_est` | `193` |
+| Calendar interpretation | The first regime ends in January 2020; the second starts in February 2020 |
+| Sampled 95% percentile interval for `c`, `ci_c` | `[187, 194]` |
+| Posterior draws / seed | `1,000 / 42` |
 
-The model captures a difference between earlier and later average levels, but misses the large spike and subsequent decline. This illustrates why a fairly concentrated change-point posterior does not establish that the model fits well. A single permanent level change is a limited description of this series; Gaussian independent errors are also a simplifying assumption.
-
-![Posterior probability of the change point](results/changepoint_posterior.png)
-
-Only the first 200 mean-function draws are displayed to keep the plot readable; the posterior average uses all 1,000 draws.
+The index interval describes possible last observations of the first regime, from July 2019 through February 2020. The plotted dashed line marks the minimum-RSS split. The model estimates a single shift in the mean; the later peak and decline remain visible in the observed series.
 
 ## Repository contents
 
