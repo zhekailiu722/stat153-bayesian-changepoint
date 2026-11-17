@@ -120,19 +120,29 @@ The script subtracts the maximum log weight before exponentiating for numerical 
 Using seed `42`, the script generates 1,000 joint posterior draws in this order:
 
 1. **Change point:** draw $c^{(i)}$ from the discrete probabilities $P(c\mid\mathbf y)$ using `rng.choice`.
-2. **Noise variance:** conditional on that change point, with the coefficients integrated out,
+**2. Noise variance:** conditional on the sampled change point, with the coefficients integrated out,
 
-   $$
-   \sigma^2\mid c,\mathbf y\sim\operatorname{InvGamma}\left(\frac{n-p}{2},\frac{\mathrm{RSS}_c}{2}\right).
-   $$
+$$
+\sigma^2 \mid c,\mathbf{y}
+\sim \mathrm{InvGamma}\left(
+\frac{n-p}{2},
+\frac{\mathrm{RSS}_c}{2}
+\right).
+$$
 
-   Here $\operatorname{InvGamma}(a,b)$ has density proportional to $v^{-a-1}\exp(-b/v)$ for $v>0$. Equivalently, draw $Z^{(i)}\sim\chi^2_{n-p}$ and set
+Here $\mathrm{InvGamma}(a,b)$ has density proportional to
+$v^{-a-1}\exp(-b/v)$ for $v>0$.
 
-   $$
-   \sigma^{(i)}=\sqrt{\frac{\mathrm{RSS}_{c^{(i)}}}{Z^{(i)}}}.
-   $$
+Equivalently, draw $Z^{(i)} \sim \chi^2_{n-p}$ and set
 
-   This is exactly the `chirv` / `sig_sample` calculation. For the included data, $n-p=254-2=252$.
+$$
+\sigma^{(i)}
+=
+\sqrt{\frac{\mathrm{RSS}_{c^{(i)}}}{Z^{(i)}}}.
+$$
+
+This is exactly the `chirv` / `sig_sample` calculation.
+For the included data, $n-p=254-2=252$.
 
 3. **Regression coefficients:** conditional on the sampled change point and variance,
 
