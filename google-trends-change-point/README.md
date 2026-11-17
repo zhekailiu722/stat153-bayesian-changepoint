@@ -1,184 +1,91 @@
-# Google Trends Change-Point Analysis
+# Bayesian Change-Point Analysis of Google Trends Data
 
-A single-change-point analysis of U.S. Google Trends search interest for **mask**, with posterior uncertainty visualized alongside the observed series.
+**Zhekai Liu | UC Berkeley STAT 153, Spring 2025 | Homework 2, Problem 3**
 
-The script searches for a shift in the series mean, computes a discrete posterior over possible change points, and draws 1,000 posterior samples of the change point, regression coefficients, and noise standard deviation.
+This is a cleaned-up version of a coursework example. It uses a Bayesian single-change-point model to study US search interest in **mask**. The goal is to estimate when the average search interest changed and describe uncertainty in the change point and the fitted mean function.
 
-## Results
+The example demonstrates regression modeling, marginal posterior calculations, direct posterior sampling, and model checking. It is a course exercise, not a new statistical method.
 
-![Google Trends change-point fit using the included original data](figures/change_point_fit.png)
+## Data and question
 
-The figure above uses the original CSV included in this repository: **254 monthly observations from January 2004 through February 2025**, for `mask` in the United States, with category `All categories`.
+The included Google Trends export has 254 monthly observations, from January 2004 to February 2025. The question is whether two average levels, separated by one change point, give a useful summary of the series.
 
-| Output | Result |
-| --- | --- |
-| Minimum-RSS change point, `c_est` | `193` |
-| Calendar interpretation | The first regime ends in January 2020; the second starts in February 2020 |
-| Sampled 95% percentile interval for `c`, `ci_c` | `[187, 194]` |
-| Posterior draws / seed | `1,000 / 42` |
+See [data notes](data/README.md) for the source and file format.
 
-The index interval describes possible last observations of the first regime, from July 2019 through February 2020. The plotted dashed line marks the minimum-RSS split. The model estimates a single shift in the mean; the later peak and decline remain visible in the observed series.
+## Model and inference
 
-## Run the analysis
+The model is
 
-Use Python 3.12, the version used for validation.
+$$y_t = \beta_0 + \beta_1 I(t > c) + \epsilon_t, \qquad \epsilon_t \overset{\mathrm{iid}}{\sim} N(0,\sigma^2).$$
+
+- $c$ is the one-based index of the last month before the change.
+- $\beta_0$ is the mean before the change.
+- $\beta_1$ is the difference between the two means.
+- $\sigma$ describes noise around the mean function.
+
+The posterior formulas use a uniform prior over $c=1,\ldots,n-1$ and the improper prior $\pi(\boldsymbol\beta,\sigma^2\mid c)\propto1/\sigma^2$. For each candidate $c$, the code fits an OLS regression with design matrix $X_c=[\mathbf{1},I(t>c)]$ and calculates $RSS(c)$. With $p=2$ regression coefficients,
+
+$$p(c\mid y)\propto |X_c^\top X_c|^{-1/2} RSS(c)^{-(n-p)/2}.$$
+
+The code then generates 1,000 parameter draws using
+
+$$c\sim p(c\mid y),$$
+
+$$\sigma^2\mid c,y\sim\operatorname{IG}\left((n-p)/2,RSS(c)/2\right),$$
+
+$$\boldsymbol\beta\mid\sigma^2,c,y\sim N\left(\widehat{\boldsymbol\beta}_c,\sigma^2(X_c^\top X_c)^{-1}\right).$$
+
+Here the inverse-gamma density is proportional to $v^{-a-1}\exp(-b/v)$. The variance draw is implemented using $\sigma^2=RSS(c)/U$, where $U\sim\chi^2_{n-p}$.
+
+This is **direct posterior sampling, not Gibbs sampling or MCMC**. Each complete parameter draw is generated independently. The plotted curves are draws of the mean function, not posterior predictive draws of new noisy observations.
+
+## Run
+
+Tested with Python 3.9.7 and the versions listed in `requirements.txt`.
 
 ```bash
 python -m pip install -r requirements.txt
+python bayesian_changepoint.py
 ```
 
-The original Google Trends export is already included at `data/multiTimeline.csv`; no separate data download or path edit is needed. Its bytes are unchanged from the supplied `multiTimeline (1).csv`. The script skips the first two lines and reads the numeric column `mask: (United States)`. The `Month` column supplies calendar labels for the plot.
+The defaults use the included dataset, 1,000 draws, and random seed 42. Paths are resolved relative to the script, so the default run does not depend on the terminal's working directory.
 
-From the repository directory, run:
+Optional arguments:
 
 ```bash
-python change_point_analysis.py
+python bayesian_changepoint.py --draws 2000 --seed 42 --output-dir results_alt
 ```
 
-The script prints `c_est` and `ci_c`, opens the figure, and saves:
+The script writes two figures, a parameter sample table, the discrete change-point posterior, and a JSON summary. Running it again replaces the files in the chosen output directory.
 
-- `figures/change_point_fit.png` — 300 dpi image.
-- `figures/change_point_fit.svg` — scalable text and axes; the dense posterior curves are rasterized to keep file size manageable.
+## Results
 
-For an environment without a display, use a non-interactive Matplotlib backend, for example on macOS/Linux:
+The minimum-RSS estimate and posterior mode are both $c=193$: January 2020 is the last pre-change month, and the new level begins in February 2020.
 
-```bash
-MPLBACKEND=Agg python change_point_analysis.py
-```
+The exact discrete 95% equal-tailed posterior interval for $c$ is **[187, 194]**, corresponding to July 2019 through February 2020 as possible last pre-change months. This is an interval conditional on the assumed model and priors, not evidence for a causal event.
 
-Input and output paths are resolved relative to the script, so the script also works when invoked from another directory.
+![Observed data and posterior mean-function draws](results/posterior_fit.png)
 
-## Reading the plot
+The model captures a difference between earlier and later average levels, but misses the large spike and subsequent decline. This illustrates why a fairly concentrated change-point posterior does not establish that the model fits well. A single permanent level change is a limited description of this series; Gaussian independent errors are also a simplifying assumption.
 
-| Visual | Meaning |
-| --- | --- |
-| Dark line | Observed search interest |
-| Faint teal lines | All 1,000 sampled fitted-mean curves |
-| Bold teal line | Pointwise posterior median of the fitted mean |
-| Pale teal band | Pointwise 2.5th–97.5th percentiles of the sampled fitted means |
-| Dashed amber line | Split selected by minimizing residual sum of squares (RSS) |
+![Posterior probability of the change point](results/changepoint_posterior.png)
 
-The credible band describes uncertainty in the **fitted mean**, not future observations. It is a pointwise interval, not a simultaneous band for the whole curve. Faint posterior draws can extend outside it.
+Only the first 200 mean-function draws are displayed to keep the plot readable; the posterior average uses all 1,000 draws.
 
-The horizontal axis displays years from the CSV's `Month` column, with one observation per month. The model still uses observation indices `1, ..., n`. A change point `c` means observations `1, ..., c` precede the change and observations `c + 1, ..., n` follow it. Step curves and the dashed boundary are drawn between the corresponding observations, at `c + 0.5`. The annotation names the last month before the change.
-
-The median curve is a pointwise summary of many sampled step functions, so it need not itself have only one change point.
-
-## Model and computation
-
-The model assumes independent Gaussian errors:
-
-$$
-y_t = \beta_0 + \beta_1\mathbf{1}(t > c) + \varepsilon_t,
-\qquad \varepsilon_t \overset{\mathrm{iid}}{\sim} N(0,\sigma^2),
-\qquad t=1,\ldots,n.
-$$
-
-Here, $\beta_0$ is the mean before the change, $\beta_1$ is the change in the mean, and $\sigma$ is the common noise standard deviation. The mean after the change is $\beta_0+\beta_1$. The change point $c$ is the last observation in the first regime.
-
-### Priors implied by the implementation
-
-The code does not declare prior distributions separately. Its posterior formulas correspond to the following prior specification, using the same prior convention for every candidate change point:
-
-| Parameter | Prior | Interpretation |
-| --- | --- | --- |
-| $c$ | Discrete uniform on $\{1,\ldots,n-1\}$ | Every split with two nonempty regimes has equal prior probability |
-| $\boldsymbol\beta=(\beta_0,\beta_1)^\top$ | $\pi(\boldsymbol\beta\mid\sigma^2,c)\propto 1$ on $\mathbb R^2$ | Flat prior on the intercept and mean shift |
-| $v=\sigma^2$ | $\pi(v\mid c)\propto 1/v$, for $v>0$ | Scale prior on the variance; equivalently, $\pi(\sigma\mid c)\propto 1/\sigma$ |
-
-Thus the joint prior density/mass is proportional to $1/\sigma^2$ over the stated support. The coefficient and variance priors are **improper**: they do not integrate to one. The same unspecified multiplicative constant is used across candidate splits. No proper normal-prior variance or inverse-gamma-prior hyperparameters are specified. The posterior is proper when $n>2$, each design matrix has full column rank, and each candidate's RSS is positive, as in the included dataset.
-
-### Change-point posterior
-
-For a fixed $c$, let $X_c$ have rows $[1,\mathbf{1}(t>c)]$, let $p=2$ be its number of columns, and define
-
-$$
-\widehat{\boldsymbol\beta}_c=(X_c^\top X_c)^{-1}X_c^\top\mathbf y,
-\qquad
-\mathrm{RSS}_c=\|\mathbf y-X_c\widehat{\boldsymbol\beta}_c\|^2.
-$$
-
-Integrating out $\boldsymbol\beta$ and $\sigma^2$ gives
-
-
-   $$
-   \sigma^2\mid c,\mathbf y\sim\operatorname{InvGamma}\left(\frac{n-p}{2},\frac{\mathrm{RSS}_c}{2}\right).
-   $$
-
-This is the formula implemented in `logpost(c)`:
-
-```text
-log_weight(c) = ((p - n) / 2) * log(RSS_c) - 0.5 * log(det(X_c.T @ X_c))
-```
-
-The script subtracts the maximum log weight before exponentiating for numerical stability, then normalizes the weights to sum to one. The separate estimate `c_est` minimizes RSS; it need not equal the posterior mode because the posterior also includes the determinant factor.
-
-### Posterior sampling
-
-Using seed `42`, the script generates 1,000 joint posterior draws in this order:
-
-1. **Change point:** draw $c^{(i)}$ from the discrete probabilities $P(c\mid\mathbf y)$ using `rng.choice`.
-**2. Noise variance:** conditional on the sampled change point, with the coefficients integrated out,
-
-$$
-\sigma^2 \mid c,\mathbf{y}
-\sim \mathrm{InvGamma}\left(
-\frac{n-p}{2},
-\frac{\mathrm{RSS}_c}{2}
-\right).
-$$
-
-Here $\mathrm{InvGamma}(a,b)$ has density proportional to
-$v^{-a-1}\exp(-b/v)$ for $v>0$.
-
-Equivalently, draw $Z^{(i)} \sim \chi^2_{n-p}$ and set
-
-$$
-\sigma^{(i)}
-=
-\sqrt{\frac{\mathrm{RSS}_{c^{(i)}}}{Z^{(i)}}}.
-$$
-
-This is exactly the `chirv` / `sig_sample` calculation.
-For the included data, $n-p=254-2=252$.
-
-3. **Regression coefficients:** conditional on the sampled change point and variance,
-
-   $$
-   \boldsymbol\beta\mid\sigma^2,c,\mathbf y\sim
-   N_2\left(\widehat{\boldsymbol\beta}_c,\;\sigma^2(X_c^\top X_c)^{-1}\right).
-   $$
-
-   This is the distribution passed to `rng.multivariate_normal`. Each row of `post_samples` stores $[c^{(i)},\beta_0^{(i)},\beta_1^{(i)},\sigma^{(i)}]$; the last entry is the standard deviation, not the variance.
-
-These are direct draws from the joint posterior through its marginal and conditional distributions, rather than an MCMC chain; no burn-in or thinning is needed. Each plotted curve is the sampled mean $\beta_0^{(i)}+\beta_1^{(i)}\mathbf{1}(t>c^{(i)})$, without added observation noise.
-
-`ci_c` is the 2.5th–97.5th percentile interval from the sampled change points. It is distinct from the fitted-mean band shown in the plot.
-
-The included data contain finite numeric values, no missing entries, and a complete sequence of monthly dates. The original statistical assumptions and numerical edge cases are unchanged. If replacing the dataset, supply a finite numeric series with more than two observations and positive residual sum of squares at every candidate split, plus a chronological `Month` column in `YYYY-MM` format. Values such as `<1`, missing entries, and other nonnumeric cells require an explicit preprocessing decision before using this script.
-
-## Validation
-
-The script was run on the included original dataset. Its RSS values, normalized change-point posterior, sampled change points, `ci_c`, and sampled regression/noise parameters were compared with the original script and were exactly equal. Both exported figures were generated successfully. Numerical inference, sample count, and seed are unchanged.
-
-## Repository contents
+## Files
 
 | File | Purpose |
 | --- | --- |
-| `change_point_analysis.py` | Original inference code with the revised plotting section and a portable input path |
-| `requirements.txt` | Versions used to validate the script |
-| `.gitignore` | Excludes Python caches, virtual environments, and local editor files |
-| `data/multiTimeline.csv` | Original monthly Google Trends data, copied without changes |
-| `data/README.md` | Data coverage, format, and provenance |
-| `figures/change_point_fit.png` | Actual analysis figure at 300 dpi |
-| `figures/change_point_fit.svg` | Scalable version of the actual analysis figure |
+| `bayesian_changepoint.py` | Complete analysis and figure generation |
+| `requirements.txt` | Tested versions of direct dependencies |
+| `data/mask_us_google_trends.csv` | Original saved Google Trends export |
+| `results/summary.json` | Estimates, dates, and run settings |
+| `results/changepoint_posterior.csv` | Probability and RSS for each candidate change point |
+| `results/posterior_samples.csv` | Draws of c, beta0, beta1, and sigma |
+| `results/*.png` | Results shown above |
 
-Plotting adds readable legends, transparent posterior curves, a fitted-mean summary and interval, calendar labels from the original data, and automatic image export. Outside plotting, the only functional change is replacing the machine-specific CSV path with `data/multiTimeline.csv` and an informative missing-file message.
+## Course sources and preparation
 
-## Publishing
+The original analysis was completed for STAT 153 Homework 2, Problem 3, in Spring 2025. The model and posterior sampling procedure follow the course materials taught by Aditya Guntuboyina, especially [Lab 5: Change-point model](https://stat153.berkeley.edu/spring-2025/lab5). See also the [course website](https://stat153.berkeley.edu/spring-2025/).
 
-Suggested repository name: `google-trends-change-point`
-
-Suggested description: `Single-change-point analysis of Google Trends search interest with posterior sampling and uncertainty visualization.`
-
-Extract the package and upload the **contents** of its `google-trends-change-point` folder to the repository root, rather than uploading the ZIP itself. Include `.gitignore`, `data/`, and `figures/`. The repository contains the input data, script, dependencies, and generated figures needed to reproduce the displayed result.
+This repository was prepared from the original `2.3.py` script with assistance from OpenAI Codex. Preparation included organizing the code into functions, using portable paths, caching candidate fits, adding dates and saved outputs, and writing documentation. The inference method is retained. The reported interval now uses exact discrete posterior quantiles rather than quantiles of the sampled change points.
