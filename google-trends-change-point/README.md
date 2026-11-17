@@ -62,7 +62,6 @@ The index interval describes possible last observations of the first regime, fro
 | --- | --- |
 | `change_point_analysis.py` | Original inference code with the revised plotting section and a portable input path |
 | `requirements.txt` | Versions used to validate the script |
-| `.gitignore` | Excludes Python caches, virtual environments, and local editor files |
 | `data/multiTimeline.csv` | Original monthly Google Trends data, copied without changes |
 | `data/README.md` | Data coverage, format, and provenance |
 | `figures/change_point_fit.png` | Actual analysis figure at 300 dpi |
