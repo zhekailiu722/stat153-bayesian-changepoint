@@ -85,9 +85,3 @@ Only the first 200 mean-function draws are displayed to keep the plot readable; 
 | `results/changepoint_posterior.csv` | Probability and RSS for each candidate change point |
 | `results/posterior_samples.csv` | Draws of c, beta0, beta1, and sigma |
 | `results/*.png` | Results shown above |
-
-## Course sources and preparation
-
-The original analysis was completed for STAT 153 Homework 2, Problem 3, in Spring 2025. The model and posterior sampling procedure follow the course materials taught by Aditya Guntuboyina, especially [Lab 5: Change-point model](https://stat153.berkeley.edu/spring-2025/lab5). See also the [course website](https://stat153.berkeley.edu/spring-2025/).
-
-This repository was prepared from the original `2.3.py` script with assistance from OpenAI Codex. Preparation included organizing the code into functions, using portable paths, caching candidate fits, adding dates and saved outputs, and writing documentation. The inference method is retained. The reported interval now uses exact discrete posterior quantiles rather than quantiles of the sampled change points.
