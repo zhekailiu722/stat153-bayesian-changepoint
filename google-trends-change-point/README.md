@@ -74,17 +74,17 @@ The model captures a difference between earlier and later average levels, but mi
 
 Only the first 200 mean-function draws are displayed to keep the plot readable; the posterior average uses all 1,000 draws.
 
-## Files
+## Repository contents
 
 | File | Purpose |
 | --- | --- |
-| `bayesian_changepoint.py` | Complete analysis and figure generation |
-| `requirements.txt` | Tested versions of direct dependencies |
-| `data/mask_us_google_trends.csv` | Original saved Google Trends export |
-| `results/summary.json` | Estimates, dates, and run settings |
-| `results/changepoint_posterior.csv` | Probability and RSS for each candidate change point |
-| `results/posterior_samples.csv` | Draws of c, beta0, beta1, and sigma |
-| `results/*.png` | Results shown above |
+| `change_point_analysis.py` | Original inference code with the revised plotting section and a portable input path |
+| `requirements.txt` | Versions used to validate the script |
+| `.gitignore` | Excludes Python caches, virtual environments, and local editor files |
+| `data/multiTimeline.csv` | Original monthly Google Trends data, copied without changes |
+| `data/README.md` | Data coverage, format, and provenance |
+| `figures/change_point_fit.png` | Actual analysis figure at 300 dpi |
+| `figures/change_point_fit.svg` | Scalable version of the actual analysis figure |
 
 ## Course sources and preparation
 
