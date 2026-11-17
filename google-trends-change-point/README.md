@@ -2,7 +2,7 @@
 
 **Zhekai Liu | UC Berkeley STAT 153, Spring 2025 | Homework 2, Problem 3**
 
-This is a cleaned-up version of a coursework example. It uses a Bayesian single-change-point model to study US search interest in **mask**. The goal is to estimate when the average search interest changed and describe uncertainty in the change point and the fitted mean function.
+This example uses a Bayesian single-change-point model to study US search interest in **mask**. The goal is to estimate when the average search interest changed and describe uncertainty in the change point and the fitted mean function.
 
 The example demonstrates regression modeling, marginal posterior calculations, direct posterior sampling, and model checking. It is a course exercise, not a new statistical method.
 
