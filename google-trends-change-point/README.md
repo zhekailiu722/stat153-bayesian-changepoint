@@ -102,11 +102,3 @@ The script was run on the included original dataset. Its RSS values, normalized 
 | `figures/change_point_fit.svg` | Scalable version of the actual analysis figure |
 
 Plotting adds readable legends, transparent posterior curves, a fitted-mean summary and interval, calendar labels from the original data, and automatic image export. Outside plotting, the only functional change is replacing the machine-specific CSV path with `data/multiTimeline.csv` and an informative missing-file message.
-
-## Publishing
-
-Suggested repository name: `google-trends-change-point`
-
-Suggested description: `Single-change-point analysis of Google Trends search interest with posterior sampling and uncertainty visualization.`
-
-Extract the package and upload the **contents** of its `google-trends-change-point` folder to the repository root, rather than uploading the ZIP itself. Include `.gitignore`, `data/`, and `figures/`. The repository contains the input data, script, dependencies, and generated figures needed to reproduce the displayed result.
