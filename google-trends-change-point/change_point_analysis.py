@@ -5,7 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
-# The original Google Trends CSV is included in data/multiTimeline.csv.
 DATA_PATH = Path(__file__).resolve().parent / "data" / "multiTimeline.csv"
 if not DATA_PATH.is_file():
     raise FileNotFoundError(
