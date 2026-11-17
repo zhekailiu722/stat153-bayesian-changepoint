@@ -100,12 +100,10 @@ $$
 
 Integrating out $\boldsymbol\beta$ and $\sigma^2$ gives
 
-$$
-P(c\mid\mathbf y)\propto
-|X_c^\top X_c|^{-1/2}\,
-\mathrm{RSS}_c^{-(n-p)/2},
-\qquad c=1,\ldots,n-1.
-$$
+
+   $$
+   \sigma^2\mid c,\mathbf y\sim\operatorname{InvGamma}\left(\frac{n-p}{2},\frac{\mathrm{RSS}_c}{2}\right).
+   $$
 
 This is the formula implemented in `logpost(c)`:
 
