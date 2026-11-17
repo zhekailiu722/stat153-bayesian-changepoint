@@ -30,6 +30,7 @@ $$p(c\mid y)\propto |X_c^\top X_c|^{-1/2} RSS(c)^{-(n-p)/2}.$$
 The code then generates 1,000 parameter draws using
 
 $$c\sim p(c\mid y),$$
+
 $$
 \sigma^2 \mid c,y \sim \mathrm{IG}\left(\frac{n-p}{2},\frac{RSS(c)}{2}\right).
 $$
